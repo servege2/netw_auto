@@ -3,12 +3,15 @@
 ---
 - name: Test SSH connectivity
   hosts: all
-  gather_facts: no
+  gather_facts: false
+  connection: network_cli
 
   tasks:
     - name: Run a simple command to verify SSH
-      ansible.builtin.command: whoami
-      register: result
+      cisco.ios.ios_command
+        commands:
+        - show version
+      register: ssh_test_result
 
     - name: Show SSH test result
       ansible.builtin.debug:
