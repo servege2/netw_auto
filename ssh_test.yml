@@ -1,22 +1,15 @@
 ---
-- name: Simple SSH connectivity test
-  hosts: all #targets all hosts in your inventory
-  gather_facts: no
-  connection: ssh
+- name: Run a simple SSH test (no remote python required)
+  ansible.builtin.raw: "echo ok"
+  register: ssh_test
+  changed_when: false
 
-  tasks:
-  - name: Test SSH by running a harmless command
-    raw: echo "SSH CONNECTIVITY TEST SUCCESSFUL"
-    register: ssh_test
-    ignore_errors: true # Continue even if some devices fail
+- name: Assert SSH connectivity worked
+  ansible.builtin.assert:
+    that:
+      - ssh_test.rc | default(0) == 0
+      - "'ok' in (ssh_test.stdout | default(''))"
+    success_msg: "SUCCESS on {{ inventory_hostname }} ({{ ansible_host | default(inventory_hostname) }})"
+    fail_msg: "FAILED SSH to {{ inventory_hostname }}: rc={{ ssh_test.rc | default('N/A') }}, out={{ ssh_test.stdout | default('') }}, err={{ ssh_test.stderr | default('') }}"
 
-  - name: Report success
-    debug:
-    msg: "SUCCESS on {{ inventory_hostname }} ({{ ansible_host }}): SSH works! Output: {{ ssh_test.stdout }}"
-    when: ssh_test.rc == 0
-
-  - name: Report failure
-    debug:
-    msg: "FAILED on {{ inventory_hostname }} ({{ ansible_host }}): SSH issue - {{ ssh_test.stderr | default('No response') }}"
-    when: ssh_test.rc != 0
 
