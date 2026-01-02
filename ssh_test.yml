@@ -1,15 +1,23 @@
 ---
-- name: Run a simple SSH test (no remote python required)
-  ansible.builtin.raw: "echo ok"
-  register: ssh_test
-  changed_when: false
+- name: SSH connectivity test using raw (no remote python required)
+  hosts: all            # or use your group name (e.g., ucs_fi)
+  gather_facts: no
 
-- name: Assert SSH connectivity worked
-  ansible.builtin.assert:
-    that:
-      - ssh_test.rc | default(0) == 0
-      - "'ok' in (ssh_test.stdout | default(''))"
-    success_msg: "SUCCESS on {{ inventory_hostname }} ({{ ansible_host | default(inventory_hostname) }})"
-    fail_msg: "FAILED SSH to {{ inventory_hostname }}: rc={{ ssh_test.rc | default('N/A') }}, out={{ ssh_test.stdout | default('') }}, err={{ ssh_test.stderr | default('') }}"
+  tasks:
+    - name: Run a simple SSH test (no remote python required)
+      ansible.builtin.raw: "echo ok"
+      register: ssh_test
+      changed_when: false
+      failed_when: false
 
-
+    - name: Assert SSH connectivity worked
+      ansible.builtin.assert:
+        that:
+          - (ssh_test.rc | default(0)) == 0
+          - "'ok' in (ssh_test.stdout | default(''))"
+        success_msg: "SUCCESS on {{ inventory_hostname }} ({{ ansible_host | default(inventory_hostname) }})"
+        fail_msg: >-
+          FAILED SSH to {{ inventory_hostname }}:
+          rc={{ ssh_test.rc | default('N/A') }},
+          stdout={{ ssh_test.stdout | default('') }},
+          stderr={{ ssh_test.stderr | default('') }}
