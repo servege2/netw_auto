@@ -4,19 +4,19 @@
   gather_facts: no
   connection: ssh
 
-tasks:
-- name: Test SSH by running a harmless command
-  raw: echo "SSH CONNECTIVITY TEST SUCCESSFUL"
-  register: ssh_test
-  ignore_errors: true # Continue even if some devices fail
+  tasks:
+  - name: Test SSH by running a harmless command
+    raw: echo "SSH CONNECTIVITY TEST SUCCESSFUL"
+    register: ssh_test
+    ignore_errors: true # Continue even if some devices fail
 
-- name: Report success
-  debug:
-  msg: "SUCCESS on {{ inventory_hostname }} ({{ ansible_host }}): SSH works! Output: {{ ssh_test.stdout }}"
-  when: ssh_test.rc == 0
+  - name: Report success
+    debug:
+    msg: "SUCCESS on {{ inventory_hostname }} ({{ ansible_host }}): SSH works! Output: {{ ssh_test.stdout }}"
+    when: ssh_test.rc == 0
 
-- name: Report failure
-  debug:
-  msg: "FAILED on {{ inventory_hostname }} ({{ ansible_host }}): SSH issue - {{ ssh_test.stderr | default('No response') }}"
-  when: ssh_test.rc != 0
+  - name: Report failure
+    debug:
+    msg: "FAILED on {{ inventory_hostname }} ({{ ansible_host }}): SSH issue - {{ ssh_test.stderr | default('No response') }}"
+    when: ssh_test.rc != 0
 
