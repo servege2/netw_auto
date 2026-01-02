@@ -11,8 +11,9 @@
 
   tasks:
     - name: Run a simple SSH connectivity test
-      ansible.builtin.raw: "echo ok"
-      register: ssh_test
+      ansible.builtin.raw: "echo ok" # "echo ok" is chosen as it should succeed on any device that offers a standard shell.
+      register: ssh_test #Register the task’s result into a variable named ssh_test.
+# changed_when and failed_when are set to false. changed_when N/A as this is a read-only probe. failed_when prevents Ansible from marking this task as failed. This lets you decide success/failure later.
       changed_when: false
       failed_when: false
 
