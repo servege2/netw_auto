@@ -1,0 +1,15 @@
+
+# ssh_test.yml
+---
+- name: Test SSH connectivity
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Run a simple command to verify SSH
+      ansible.builtin.command: whoami
+      register: result
+
+    - name: Show SSH test result
+      ansible.builtin.debug:
+        msg: "Connected as {{ result.stdout }}"
