@@ -1,11 +1,10 @@
-
----
-- name: SSH connectivity test using raw (no remote python required)
-  hosts: all
-  gather_facts: no
+--- #YAML document start marker
+- name: SSH connectivity test using raw (no remote python required) #Play name
+  hosts: all #The Play runs agains all hosts
+  gather_facts: no #Speeds up execution
 
   tasks:
-    - name: Run a simple SSH test (no remote python required)
+    - name: Run a simple SSH connectivity test
       ansible.builtin.raw: "echo ok"
       register: ssh_test
       changed_when: false
