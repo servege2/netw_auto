@@ -1,3 +1,4 @@
+# ping_devices.yml
 ---
 - name: Ping all hosts in inventory
   hosts: all
