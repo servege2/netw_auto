@@ -3,6 +3,12 @@
   hosts: all #The Play runs agains all hosts
   gather_facts: no #Speeds up execution
 
+# Regarding ansible.builtin.raw:
+# This is a module of Ansible core (ansible-core) and is included on all Ansible installations.
+# It executes a low-down and dirty SSH command.
+# It is commonly used to connect to network devices, as these do not have Python installed. 
+# Standard output, error output and return code are returned when available.
+
   tasks:
     - name: Run a simple SSH connectivity test
       ansible.builtin.raw: "echo ok"
