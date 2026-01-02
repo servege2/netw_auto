@@ -1,7 +1,7 @@
 
 ---
 - name: Test SSH to UCS FI, enter NX-OS, and show interface status (expect)
-  hosts: ucs_fi
+  hosts: all
   gather_facts: no
   vars:
     fi_prompt: '.*#\s?$'
