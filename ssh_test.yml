@@ -1,45 +1,22 @@
-
 ---
-- name: Test SSH to UCS FI, enter NX-OS, and show interface status (expect)
-  hosts: all
+- name: Simple SSH connectivity test
+  hosts: all #targets all hosts in your inventory
   gather_facts: no
-  vars:
-    fi_prompt: '.*#\s?$'
-    nxos_prompt: '.*\(nxos\).*[#>]\s?$'
-  tasks:
+  connection: ssh
 
-    - name: Start interactive SSH session and run commands
-      ansible.builtin.expect:
-        command: "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ ansible_user }}@{{ inventory_hostname }}"
-        responses:
-          # Handle initial password prompt
-          '(?i)password:': "{{ ansible_password }}"
+tasks:
+- name: Test SSH by running a harmless command
+  raw: echo "SSH CONNECTIVITY TEST SUCCESSFUL"
+  register: ssh_test
+  ignore_errors: true # Continue even if some devices fail
 
-          # After login, we should be at the FI shell prompt (#). Send connect nxos.
-          '{{ fi_prompt }}': "connect nxos"
+- name: Report success
+  debug:
+  msg: "SUCCESS on {{ inventory_hostname }} ({{ ansible_host }}): SSH works! Output: {{ ssh_test.stdout }}"
+  when: ssh_test.rc == 0
 
-          # Now in NX-OS; set terminal length 0 to avoid paging
-          '{{ nxos_prompt }}': "terminal length 0"
-
-          # When we see nxos prompt again, issue the show command
-          # (expect returns after first prompt match; chain via a list task if needed)
-        timeout: 30
-        echo: yes
-      register: login_and_connect
-
-    - name: Run 'show interface status' inside the same SSH session
-      # Using another expect ensures we’re at the NX-OS prompt now
-      ansible.builtin.expect:
-        command: "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ ansible_user }}@{{ inventory_hostname }}"
-        responses:
-          '(?i)password:': "{{ ansible_password }}"
-          '{{ fi_prompt }}': "connect nxos"
-          '{{ nxos_prompt }}': "show interface status"
-        timeout: 30
-        echo: yes
-      register: nxos_show_int_status
-
-    - name: Print interface status output
-      ansible.builtin.debug:
-        msg: "{{ nxos_show_int_status.stdout_lines | default(nxos_show_int_status.stdout) }}"
+- name: Report failure
+  debug:
+  msg: "FAILED on {{ inventory_hostname }} ({{ ansible_host }}): SSH issue - {{ ssh_test.stderr | default('No response') }}"
+  when: ssh_test.rc != 0
 
