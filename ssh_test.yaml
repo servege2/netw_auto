@@ -1,14 +1,15 @@
+
 ---
-- name: SSH connectivity test using raw (minimal output)
+- name: SSH connectivity test using raw (check stderr for Cisco UCS)
   hosts: all
   gather_facts: no
 
   tasks:
     - name: SSH check
-      ansible.builtin.raw: "echo ok"
+      ansible.builtin.raw: "echo ok"   # Or any harmless command
       register: ssh_test
       changed_when: false
-      # Mark the task failed if the command rc != 0 OR the expected token 'ok' is not in stdout
       failed_when: >
         (ssh_test.rc | default(1)) != 0
-        or ('ok' not in (ssh_test.stdout | default('')))
+        or ('Cisco UCS' not in (ssh_test.stderr | default('')))
+      no_log: true   # Optional: hides stdout/stderr completely
