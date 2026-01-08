@@ -1,0 +1,14 @@
+---
+- name: SSH connectivity test using raw (minimal output)
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: SSH check
+      ansible.builtin.raw: "echo ok"
+      register: ssh_test
+      changed_when: false
+      # Mark the task failed if the command rc != 0 OR the expected token 'ok' is not in stdout
+      failed_when: >
+        (ssh_test.rc | default(1)) != 0
+        or ('ok' not in (ssh_test.stdout | default('')))
