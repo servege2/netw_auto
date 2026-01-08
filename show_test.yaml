@@ -1,13 +1,36 @@
 
 ---
-- name: Run NXOS show in one line
-  ansible.builtin.raw: "connect nxos a ; show interface status ; exit"
-  register: nxos_output
-  changed_when: false
-  failed_when: false
+- name: Run NXOS sequence and capture output (UCS-X / IMM)
+  hosts: all
+  gather_facts: no
 
-- name: Display captured output
-  debug:
-    msg: "{{ nxos_output.stdout }}"
+  # Optional: keep output minimal in your run
+  # vars:
+  #   ansible_stdout_callback: minimal
 
+  tasks:
+    - name: Run interactive NXOS sequence in one raw session
+      ansible.builtin.raw: |
+        connect nxos
+        show port-channel summary interface po1
+        exit
+        exit
+      register: nxos_session
+      changed_when: false
+      failed_when: false
+
+    # Normalize result to avoid undefined errors downstream
+    - name: Normalize captured buffers
+      ansible.builtin.set_fact:
+        nxos_stdout: "{{ nxos_session.stdout | default('') }}"
+        nxos_stderr: "{{ nxos_session.stderr | default('') }}"
+        nxos_rc: "{{ (nxos_session.rc | default(0)) | int }}"
+
+    # Show everything we got back (combined)
+    - name: Display complete captured output
+      ansible.builtin.debug:
+        msg:
+          rc: "{{ nxos_rc }}"
+          stdout: "{{ nxos_stdout }}"
+          stderr: "{{ nxos_stderr }}"
 
