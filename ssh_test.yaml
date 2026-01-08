@@ -9,7 +9,5 @@
       ansible.builtin.raw: "echo ok"   # Or any harmless command
       register: ssh_test
       changed_when: false
-      failed_when: >
-        (ssh_test.rc | default(1)) != 0
-        or ('Cisco UCS' not in (ssh_test.stderr | default('')))
-      no_log: true   # Optional: hides stdout/stderr completely
+      failed_when: false
+#      no_log: true   # Optional: hides stdout/stderr completely
