@@ -23,6 +23,10 @@
 # ssh_stderr: safely pull stderr; default to empty string.
 # ssh_rc: safely pull rc (return code); default to 0 and cast to integer.
 
+# {{  }} are jinja2 template delimeters: Anythins inside {{ }} is a Jinja2 expression, and anything outside is plain YAML. Note that "|" is used by Jinha2 to apply filters.
+# ssh_stdout: "{{ ssh_test.stdout | default('') }}" = Use ssh_test.stdout if it exists and is not undefined; otherwise use the empty string.
+# ssh_rc: "{{ (ssh_test.rc | default(0)) | int }}" = Take ssh_test.rc if defined, else 0, and ensure it’s an integer with the int filter
+
     - name: Normalize buffers for evaluation
       ansible.builtin.set_fact:
         ssh_stdout: "{{ ssh_test.stdout | default('') }}"
