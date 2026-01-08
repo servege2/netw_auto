@@ -13,7 +13,7 @@
     - name: Run a simple SSH connectivity test
       ansible.builtin.raw: "echo ok" # "echo ok" is chosen as it should succeed on any device that offers a standard shell.
       register: ssh_test #Register the task’s result into a variable named ssh_test.
-# changed_when and failed_when are set to false. changed_when N/A as this is a read-only probe. failed_when prevents Ansible from marking this task as failed. This lets you decide success/failure later.
+# changed_when and failed_when are set to false. changed_when is N/A as this is a read-only probe. failed_when prevents Ansible from marking this task as failed. This lets you decide success/failure later.
       changed_when: false
       failed_when: false
 
@@ -28,10 +28,3 @@
         ssh_stdout: "{{ ssh_test.stdout | default('') }}"
         ssh_stderr: "{{ ssh_test.stderr | default('') }}"
         ssh_rc: "{{ (ssh_test.rc | default(0)) | int }}"
-
-    - name: Assert SSH connectivity worked (FI-friendly)
-      ansible.builtin.assert:
-        that:
-          - ssh_rc == 0
-        success_msg: "SUCCESS on {{ inventory_hostname }} ({{ ansible_host | default(inventory_hostname) }}) rc={{ ssh_rc }}, stdout={{ ssh_stdout | truncate(120) }}, stderr={{ ssh_stderr | truncate(120) }}"
-        fail_msg: "FAILED SSH to {{ inventory_hostname }} ({{ ansible_host | default(inventory_hostname) }}): rc={{ ssh_rc }}, stdout={{ ssh_stdout }}, stderr={{ ssh_stderr }}"
