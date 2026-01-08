@@ -1,4 +1,5 @@
 
+---
 - name: Run NXOS show in one line
   ansible.builtin.raw: "connect nxos a ; show interface status ; exit"
   register: nxos_output
@@ -8,4 +9,5 @@
 - name: Display captured output
   debug:
     msg: "{{ nxos_output.stdout }}"
+
 
