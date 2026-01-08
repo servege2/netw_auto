@@ -1,22 +1,24 @@
 
 ---
-- name: Collect NXOS interface status from network device
+- name: Collect NXOS interface status via interactive session
   hosts: all
   gather_facts: no
 
   tasks:
-    - name: Connect to NXOS shell
-      ansible.builtin.raw: "connect nxos"
-      register: nxos_connect
+    - name: Enter NXOS context and run 'show interface status'
+      ansible.builtin.expect:
+        command: "connect nxos"
+        echo: true              # echo back what we send (helps debugging)
+        timeout: 60
+        responses:
+          # When NXOS prompt appears, send the show + exit
+          # The prompt typically ends with "(nxos)#"
+          '(?m)^.*\\(nxos\\)#\\s*$': "show interface status\nexit\n"
+      register: nxos_session
       changed_when: false
       failed_when: false
 
-    - name: Run 'show interface status'
-      ansible.builtin.raw: "show interface status"
-      register: nxos_interface_status
-      changed_when: false
-      failed_when: false
-
-    - name: Display captured output
+    - name: Capture NXOS output (stdout)
       debug:
-        msg: "{{ nxos_interface_status.stdout }}"
+        msg: "{{ nxos_session.stdout }}"
+
