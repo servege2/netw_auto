@@ -1,24 +1,22 @@
-tasks:
-- name: Connect to NX-OS module and run show interface status
-raw: |
-connect nxos
-show interface status
-exit
-register: nxos_output
-ignore_errors: true # Allows playbook to continue if something fails
 
-- name: Display success and captured output
-debug:
-msg: |
-=== Output from {{ inventory_hostname }} ({{ ansible_host }}) ===
-{{ nxos_output.stdout }}
-when: nxos_output.rc == 0
+---
+- name: Collect NXOS interface status from network device
+  hosts: all
+  gather_facts: no
 
-- name: Display failure details
-debug:
-msg: |
-FAILED on {{ inventory_hostname }} ({{ ansible_host }})
-Return code: {{ nxos_output.rc }}
-Stderr: {{ nxos_output.stderr | default('None') }}
-Stdout (partial): {{ nxos_output.stdout | default('None') }}
-when: nxos_output.rc != 0
+  tasks:
+    - name: Connect to NXOS shell
+      ansible.builtin.raw: "connect nxos"
+      register: nxos_connect
+      changed_when: false
+      failed_when: false
+
+    - name: Run 'show interface status'
+      ansible.builtin.raw: "show interface status"
+      register: nxos_interface_status
+      changed_when: false
+      failed_when: false
+
+    - name: Display captured output
+      debug:
+        msg: "{{ nxos_interface_status.stdout }}"
